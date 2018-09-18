@@ -6,9 +6,324 @@ Tags: Go, dep, glide, vendor
 Maciej Zimnoch
 Senior Software Developer, Codilime 
 maciej.zimnoch@codilime.com
-http://codilime.com
+zimnx
+https://codilime.com/careers/
 
 * Agenda
-- How we rolled
-- How we roll
-- How we will rollg
+- Po co zarządzanie zależnościami w Go?
+- Wstęp do modułów w Go
+- Migracja istniejących projektów
+- Jak rozpocząć pracę z modułami
+- Wsparcie
+
+* Po co zarządzanie zależnościami w Go?
+ 
+* Pierwsza wersja programu
+
+.image images/0.png
+
+* Pierwsza zależność
+
+.image images/1.png
+
+* Druga zależność
+
+.image images/2.png
+
+* Oczekiwania
+
+.image images/3.png
+
+* Rzeczywistość
+
+.image images/4.png
+
+* Rzeczywistość
+
+.image images/expl.gif
+
+* Istniejące rozwiązania
+- Wiele rozwiązań z różnymi podejściami
+- GOPATH, glide, govendor, vendor, dep
+- Brak jednolitego podejścia uniemożliwia tworzenie użytecznych narzędzi do wizualizacji, autymatyzacji wersjonowania itp. 
+
+* Moduły w Go 1.11
+- 'A module is a collection of related Go packages'
+- 'Modules are the unit of source code interchange and versioning'
+- Komenda `go` natywnie wspiera pracę z modułami
+- Moduły maja zastąpić stare podejście do wersjonowania, gdzie GOPATH było źródłem plików źródłowych przy budowaniu.
+  go help modules
+
+
+* Semantic import versioning
+.image images/semver.png
+
+* Zasady wersjonowania w Go
+- *Kompatybilność*
+Zasada kompatybilności importu - jeśli stary i nowy pakiet mają taka samą scieżkę importu, nowa paczka musi byc wstecznie kompatybilna ze starą
+
+- *Powtarzalność*
+Rezultat budowy danej wersji pakietu nie powinien się zmieniać w czasie
+
+- *Kooperacja*
+Musimy wszyscy razem pracować nad utrzymaniem ekosystemu Golangowych pakietów. Bez naszej współpracy nie powstaną działające narzędzia.
+
+* Migracja istniejacych projektów
+  $ git clone  https://github.com/cloudwan/gohan
+  Cloning into 'gohan'...
+  $ cd gohan
+  $ go mod init
+  go: creating new go.mod: module github.com/cloudwan/gohan 
+  go: copying requirements from Gopkg.lock
+  $ go mod tidy
+  go: finding github.com/myesui/uuid/savers latest
+  go: downloading google.golang.org/appengine v1.1.0
+  go: finding github.com/prometheus/client_golang/prometheus/promhttp latest
+  go: finding github.com/prometheus/client_golang/prometheus latest
+  go: finding github.com/juju/testing/checkers latest
+  go: finding github.com/golang/glog latest
+  go: finding github.com/juju/testing latest
+  go: finding golang.org/x/time/rate latest
+  go: finding github.com/coreos/pkg/capnslog latest
+  go: finding github.com/coreos/pkg latest
+  go: finding golang.org/x/time latest
+  go: finding github.com/ugorji/go/codec latest
+  [...]
+
+* Tworzenie modułu
+  
+  $ mkdir /tmp/hello-modules
+  $ cd /tmp/hello-modules 
+  $ go mod init github.com/zimnx/hello-modules
+  go: creating new go.mod: module github.com/zimnx/hello-modules
+  $ ls
+  go.mod
+  $ cat go.mod 
+  module github.com/zimnx/hello-modules
+
+* Dodanie zależności
+  $ cat hello.go
+  package main
+
+  import (
+      "fmt"
+      "rsc.io/quote"
+  )
+
+  func main() {
+      fmt.Println(quote.Hello())
+  }
+
+  $ go build
+  go: finding rsc.io/quote v1.5.2
+  go: downloading rsc.io/quote v1.5.2
+  go: finding rsc.io/sampler v1.3.0
+  go: finding golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c
+  go: downloading rsc.io/sampler v1.3.0
+  go: downloading golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c
+  $ ./hello-modules 
+  Hello, world.
+
+* Sprawdzenie zależności
+  $ cat go.mod
+  module github.com/zimnx/hello-modules
+
+  require rsc.io/quote v1.5.2
+  $ go list -m all
+  github.com/zimnx/hello-modules
+  golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c
+  rsc.io/quote v1.5.2
+  rsc.io/sampler v1.3.0
+
+* Rebuild
+  $ go build
+  $ LANG=pl ./hello-modules
+  Witaj świecie.
+
+* Update modułów
+
+  $ go list -m -u all
+  go: finding rsc.io/sampler v1.99.99
+  github.com/zimnx/hello-modules
+  golang.org/x/text v0.3.0
+  rsc.io/quote v1.5.2
+  rsc.io/sampler v1.3.0 [v1.99.99]
+  $ go get -u golang.org/x/text
+  $ cat go.mod
+  module github.com/zimnx/hello-modules
+
+  require (
+        golang.org/x/text v0.3.0 // indirect
+        rsc.io/quote v1.5.2
+  )
+  $ go list -m all
+  github.com/zimnx/hello-modules
+  golang.org/x/text v0.3.0
+  rsc.io/quote v1.5.2
+  rsc.io/sampler v1.3.0
+
+* Testowanie
+  $ go test -short all
+  ok      encoding/asn1   0.012s
+  ok      encoding/base64 0.035s
+  ok      encoding/binary 0.007s
+  ok      encoding/gob    0.065s
+  ok      encoding/hex    0.017s
+  ok      encoding/json   0.732s
+  ok      encoding/pem    0.081s
+  ok      encoding/xml    0.049s
+  ok      errors  0.042s
+  ok      flag    0.033s
+  ok      fmt     0.170s
+  ?       github.com/zimnx/hello-modules  [no test files]
+  ok      go/ast  0.011s
+  ok      go/build        0.316s
+  ok      go/doc  0.104s
+  ok      go/format       0.008s
+  ok      go/parser       0.056s
+  ok      go/printer      0.496s
+  ok      go/scanner      0.004s
+  ok      go/token        0.038s
+  ok      rsc.io/quote    0.015s
+  ok      rsc.io/sampler  0.026s
+  [...]
+
+
+* Testowanie
+  $ go test rsc.io/quote/...
+  ok      rsc.io/quote    0.004s
+  --- FAIL: Test (0.00s)
+    buggy_test.go:10: buggy!
+  FAIL
+  FAIL    rsc.io/quote/buggy      0.002s
+
+* Upgrade wszystkich zależności
+
+  $ go get -u
+  go: downloading rsc.io/sampler v1.99.99
+  $ cat go.mod
+  module github.com/zimnx/hello-modules
+
+  require (
+        golang.org/x/text v0.3.0 // indirect
+        rsc.io/quote v1.5.2
+        rsc.io/sampler v1.99.99 // indirect
+  )
+
+* Ponowne testowanie
+  $ go test -short all
+  ok      errors  (cached)
+  ok      flag    (cached)
+  ok      fmt     (cached)
+  ?       github.com/zimnx/hello-modules  [no test files]
+  ok      go/ast  (cached)
+  ok      go/build        (cached)
+  ok      go/doc  (cached)
+  ok      go/format       (cached)
+  ok      go/parser       (cached)
+  ok      go/printer      (cached)
+  ok      go/scanner      (cached)
+  ok      go/token        (cached)
+  --- FAIL: TestHello (0.00s)
+    quote_test.go:19: Hello() = "99 bottles of beer on the wall, 99 bottles of beer, ...", want "Hello, world."
+  FAIL
+  FAIL    rsc.io/quote    0.007s
+  --- FAIL: TestHello (0.00s)
+    hello_test.go:31: Hello([en-US fr]) = "99 bottles of beer on the wall, 99 bottles of beer, ...", want "Hello, world."
+    hello_test.go:31: Hello([fr en-US]) = "99 bottles of beer on the wall, 99 bottles of beer, ...", want "Bonjour le monde."
+  FAIL
+  FAIL    rsc.io/sampler  0.005s
+
+* Ponowne uruchomienie
+  $ go build
+  $ ./hello-modules 
+  99 bottles of beer on the wall, 99 bottles of beer, ...
+
+* Cofnięcie wersji zależności
+
+  $ go list -m -versions rsc.io/sampler
+  rsc.io/sampler v1.0.0 v1.2.0 v1.2.1 v1.3.0 v1.3.1 v1.99.99
+  $ go get rsc.io/sampler@v1.3.1
+  go: finding rsc.io/sampler v1.3.1
+  go: downloading rsc.io/sampler v1.3.1
+  $ go list -m all
+  github.com/zimnx/hello-modules
+  golang.org/x/text v0.3.0
+  rsc.io/quote v1.5.2
+  rsc.io/sampler v1.3.1
+  $ cat go.mod
+  module github.com/zimnx/hello-modules
+
+  require (
+        golang.org/x/text v0.3.0 // indirect
+        rsc.io/quote v1.5.2
+        rsc.io/sampler v1.3.1 // indirect
+  )
+
+
+* Testowanie
+
+  $ go test -short all
+  ok      os/signal       (cached)
+  ?       os/signal/internal/pty  [no test files]
+  ok      os/user (cached)
+  ok      path    (cached)
+  ok      path/filepath   (cached)
+  ok      reflect (cached)
+  ok      regexp  (cached)
+  ok      regexp/syntax   (cached)
+  ok      rsc.io/quote    0.033s
+  ok      rsc.io/sampler  0.005s
+
+* Fork
+  $ go list -m -f "{{.Version}}" rsc.io/quote
+   v1.5.2
+
+  $ git clone https://github.com/rsc/quote /tmp/quote
+  $ cd /tmp/quote
+  $ git checkout -b quote_fix v1.5.2
+  Switched to a new branch 'quote_fix'
+
+Edytujemy quote.go
+
+* Fork
+  $ cd /tmp/hello-modules
+  $ go mod edit -replace 'rsc.io/quote'='../quote'
+  $ go list -m all
+  github.com/zimnx/hello-modules
+  golang.org/x/text v0.3.0
+  rsc.io/quote v1.5.2 => ../quote
+  rsc.io/sampler v1.3.1
+  $ go build
+  $ ./hello-modules
+  Hello modules!
+* Fork
+  $ cd /tmp/quote
+  $ git remote add zimnx https://github.com/zimnx/quote-fork
+  $ git commit -a -m 'fork'
+  $ git push zimnx
+  $ git tag v0.0.1
+  $ git push zimnx v0.0.1
+  * [new tag]		v0.0.1 -> v0.0.1
+
+* Fork
+  $ cd /tmp/hello-modules
+  $ go mod edit -replace 'rsc.io/quote'='github.com/zimnx/quote-fork@v0.0.1'
+  $ go list -m all
+  github.com/zimnx/hello-modules
+  golang.org/x/text v0.3.0
+  rsc.io/quote v1.5.2 => github.com/zimnx/quote-fork v0.0.1
+  rsc.io/sampler v1.3.1
+
+* Wsparcie IDE
+- GoLand - Pełne wsparcie od 2018.2.2
+- VS Code - trwają prace - ticket #1532
+- Atom + go-plus - ticket #761
+- vim + vim-go - dostępne jest kolorowanie składni i formatowanie plików 'go.mod' - ticket #1906
+- emacs + go-mode.el - ticket #237
+
+* References
+.link https://www.youtube.com/watch?v=F8nrpe0XWRg Russ Cox - Go with Versions - GopherConSG 2018
+- go help modules
+
+* Q&A
