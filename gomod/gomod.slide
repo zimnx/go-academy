@@ -72,13 +72,15 @@ Musimy wszyscy razem pracować nad utrzymaniem ekosystemu Golangowych pakietów.
   $ git clone  https://github.com/cloudwan/gohan
   Cloning into 'gohan'...
   $ cd gohan
+
   $ go mod init
   go: creating new go.mod: module github.com/cloudwan/gohan 
   go: copying requirements from Gopkg.lock
+
   $ go mod tidy
   go: finding github.com/myesui/uuid/savers latest
   go: downloading google.golang.org/appengine v1.1.0
-  go: finding github.com/prometheus/client_golang/prometheus/promhttp latest
+  go: finding github.com/prometheus/client_golang/prometheus/promhttp latest...
   go: finding github.com/prometheus/client_golang/prometheus latest
   go: finding github.com/juju/testing/checkers latest
   go: finding github.com/golang/glog latest
@@ -91,13 +93,22 @@ Musimy wszyscy razem pracować nad utrzymaniem ekosystemu Golangowych pakietów.
   [...]
 
 * Tworzenie modułu
-  
+
+  $ cd $GOPATH/src/<project_path>
+  $ export GO111MODULE=on
+
+lub
+
   $ mkdir /tmp/hello-modules
   $ cd /tmp/hello-modules 
+potem jednakowo:
+
   $ go mod init github.com/zimnx/hello-modules
   go: creating new go.mod: module github.com/zimnx/hello-modules
+
   $ ls
   go.mod
+
   $ cat go.mod 
   module github.com/zimnx/hello-modules
 
@@ -121,6 +132,7 @@ Musimy wszyscy razem pracować nad utrzymaniem ekosystemu Golangowych pakietów.
   go: finding golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c
   go: downloading rsc.io/sampler v1.3.0
   go: downloading golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c
+
   $ ./hello-modules 
   Hello, world.
 
@@ -129,6 +141,7 @@ Musimy wszyscy razem pracować nad utrzymaniem ekosystemu Golangowych pakietów.
   module github.com/zimnx/hello-modules
 
   require rsc.io/quote v1.5.2
+
   $ go list -m all
   github.com/zimnx/hello-modules
   golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c
@@ -148,7 +161,9 @@ Musimy wszyscy razem pracować nad utrzymaniem ekosystemu Golangowych pakietów.
   golang.org/x/text v0.3.0
   rsc.io/quote v1.5.2
   rsc.io/sampler v1.3.0 [v1.99.99]
+
   $ go get -u golang.org/x/text
+
   $ cat go.mod
   module github.com/zimnx/hello-modules
 
@@ -156,6 +171,7 @@ Musimy wszyscy razem pracować nad utrzymaniem ekosystemu Golangowych pakietów.
         golang.org/x/text v0.3.0 // indirect
         rsc.io/quote v1.5.2
   )
+
   $ go list -m all
   github.com/zimnx/hello-modules
   golang.org/x/text v0.3.0
@@ -201,6 +217,7 @@ Musimy wszyscy razem pracować nad utrzymaniem ekosystemu Golangowych pakietów.
 
   $ go get -u
   go: downloading rsc.io/sampler v1.99.99
+
   $ cat go.mod
   module github.com/zimnx/hello-modules
 
@@ -243,14 +260,17 @@ Musimy wszyscy razem pracować nad utrzymaniem ekosystemu Golangowych pakietów.
 
   $ go list -m -versions rsc.io/sampler
   rsc.io/sampler v1.0.0 v1.2.0 v1.2.1 v1.3.0 v1.3.1 v1.99.99
+
   $ go get rsc.io/sampler@v1.3.1
   go: finding rsc.io/sampler v1.3.1
   go: downloading rsc.io/sampler v1.3.1
+
   $ go list -m all
   github.com/zimnx/hello-modules
   golang.org/x/text v0.3.0
   rsc.io/quote v1.5.2
   rsc.io/sampler v1.3.1
+
   $ cat go.mod
   module github.com/zimnx/hello-modules
 
@@ -286,18 +306,23 @@ Musimy wszyscy razem pracować nad utrzymaniem ekosystemu Golangowych pakietów.
 
 Edytujemy quote.go
 
-* Fork
+* Fork lokalny
   $ cd /tmp/hello-modules
   $ go mod edit -replace 'rsc.io/quote'='../quote'
+
   $ go list -m all
   github.com/zimnx/hello-modules
   golang.org/x/text v0.3.0
   rsc.io/quote v1.5.2 => ../quote
   rsc.io/sampler v1.3.1
+
   $ go build
   $ ./hello-modules
   Hello modules!
-* Fork
+* Fork zdalny
+
+quote fork
+
   $ cd /tmp/quote
   $ git remote add zimnx https://github.com/zimnx/quote-fork
   $ git commit -a -m 'fork'
@@ -306,9 +331,10 @@ Edytujemy quote.go
   $ git push zimnx v0.0.1
   * [new tag]		v0.0.1 -> v0.0.1
 
-* Fork
-  $ cd /tmp/hello-modules
+hello-modules
+
   $ go mod edit -replace 'rsc.io/quote'='github.com/zimnx/quote-fork@v0.0.1'
+
   $ go list -m all
   github.com/zimnx/hello-modules
   golang.org/x/text v0.3.0
@@ -324,6 +350,5 @@ Edytujemy quote.go
 
 * References
 .link https://www.youtube.com/watch?v=F8nrpe0XWRg Russ Cox - Go with Versions - GopherConSG 2018
+.link https://github.com/golang/go/wiki/Modules Go Wiki - Module
 - go help modules
-
-* Q&A
