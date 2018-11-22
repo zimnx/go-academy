@@ -1,20 +1,61 @@
-Dependency management 
-Go! Academy 
-19 Sep 2018
+Wprowadzenie do modułów
+Go 1.11
+23 Nov 2018
 Tags: Go, dep, glide, vendor
 
 Maciej Zimnoch
 Senior Software Developer, Codilime 
 maciej.zimnoch@codilime.com
-zimnx
+https://gihub.com/zimnx
 https://codilime.com/careers/
 
 * Agenda
-- Po co zarządzanie zależnościami w Go?
+- GOPATH
+- Problem z zarządaniem zależnościami
 - Wstęp do modułów w Go
 - Migracja istniejących projektów
 - Jak rozpocząć pracę z modułami
 - Wsparcie
+
+* GOPATH 
+
+- Źródła pobierane są z/do lokalnego folderu na naszym komputerze
+- Ustawione poprzez zmienną środowiskową o nazwie GOPATH
+
+  $ find $GOPATH -maxdepth 3 -type d                                                                                                                
+  /home/zimny/go/src/google.golang.org/genproto
+  /home/zimny/go/src/google.golang.org/grpc
+  /home/zimny/go/src/golang.org/x
+  /home/zimny/go/src/github.com/streadway
+  /home/zimny/go/src/github.com/afex
+  /home/zimny/go/src/github.com/go-stack
+  /home/zimny/go/src/github.com/skratchdot
+  /home/zimny/go/src/github.com/hashicorp
+  /home/zimny/go/src/github.com/samuel
+  /home/zimny/go/src/github.com/openzipkin
+  /home/zimny/go/src/github.com/fsouza
+  /home/zimny/go/src/github.com/prometheus
+  /home/zimny/go/src/github.com/Shopify
+  /home/zimny/go/src/github.com/Nvveen
+  /home/zimny/go/src/github.com/mmatczuk
+  [...]
+
+* Plus GOPATH
+
+.image images/leftpad.png
+
+* Plus GOPATH
+
+.image images/leftpad2.png
+
+* Plus GOPATH
+
+.image images/leftpad3.png
+
+* Minus GOPATH
+
+.image images/github.png
+.image images/github2.png 300 700
 
 * Po co zarządzanie zależnościami w Go?
  
@@ -38,12 +79,9 @@ https://codilime.com/careers/
 
 .image images/4.png
 
-* Rzeczywistość
-
-.image images/expl.gif
 
 * Istniejące rozwiązania
-- Wiele rozwiązań z różnymi podejściami
+- Wiele pomysłów z różnymi podejściami
 - GOPATH, glide, govendor, vendor, dep
 - Brak jednolitego podejścia uniemożliwia tworzenie użytecznych narzędzi do wizualizacji, autymatyzacji wersjonowania itp. 
 
