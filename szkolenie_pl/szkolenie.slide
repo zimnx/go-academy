@@ -1,0 +1,49 @@
+3 rzeczy które chciałbym wiedzieć 3 lata temu
+18 Jun 2019
+Tags: Go, experience
+
+Maciej Zimnoch
+Software Developer
+maciej.zimnoch@codilime.com
+https://gihub.com/zimnx
+
+* Agenda
+- 3 lata temu
+- 1. rzecz
+- 2. rzecz
+- 3. rzecz
+
+* 3 lata temu
+
+- Migracja umysłowa z C++ na JS + Go
+- Migracja dużej bazy kodu w JS do Go
+
+
+* 1. rzecz
+
+* Rise please!
+
+JavaScript to większe 💩 niż myślałem.
+ #teamsilnietypowanejezyki
+.caption https://www.destroyallsoftware.com/talks/wat
+
+* 2. rzecz
+
+* error
+
+.play error1.go 
+
+* nil error
+ 
+.play error2.go
+
+* nil != nil
+
+.image wat.jpg
+
+* 3. rzecz
+
+* it's not a copy!
+
+.play for1.go
+
